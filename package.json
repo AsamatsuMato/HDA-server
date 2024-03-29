@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "dev": "nodemon ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -14,8 +14,5 @@
     "http-errors": "~1.6.3",
     "mongoose": "^8.2.4",
     "morgan": "~1.9.1"
-  },
-  "devDependencies": {
-    "typescript": "^5.4.3"
   }
 }
