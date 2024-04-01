@@ -1,4 +1,6 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
+const { SECRET } = require("../config/index");
 const router = express.Router();
 const AlipaySdk = require("alipay-sdk").default;
 
@@ -21,9 +23,20 @@ router.post("/authorizedAccessToken", async (req, res) => {
   const { avatar, nickName } = await alipaySdk.exec("alipay.user.info.share", {
     authToken: systemInfo.accessToken,
   });
+  const token = jwt.sign(
+    {
+      avatar,
+      nickName,
+    },
+    SECRET,
+    {
+      expiresIn: 60 * 60 * 24,
+    }
+  );
   res.json({
     code: 200,
     data: {
+      token,
       avatar,
       nickName,
     },
