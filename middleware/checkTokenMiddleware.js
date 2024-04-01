@@ -22,7 +22,7 @@ module.exports = (req, res, next) => {
     //如果 token 校验成功
     next();
   } catch (err) {
-    res.json({
+    return res.json({
       code: 1002,
       msg: "token校验失败",
       data: null,

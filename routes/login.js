@@ -1,7 +1,11 @@
 const express = require("express");
+const router = express.Router();
+
 const jwt = require("jsonwebtoken");
 const { SECRET } = require("../config/index");
-const router = express.Router();
+
+const UserModel = require("../model/User");
+
 const AlipaySdk = require("alipay-sdk").default;
 
 router.post("/authorizedAccessToken", async (req, res) => {
@@ -16,23 +20,48 @@ router.post("/authorizedAccessToken", async (req, res) => {
       "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgjVl4vNhmZOz4rNWXscVd2LQuZtfs+nQDoEK7kRFDp9ySVyUuT56DmWDkuY54brUCkOpqMLsTEYHZycT8W0UZLgV5X3dvEvpj7u+hR+Lv4zUE9oTzRtmRIEVXSxwvlTbvDMu8C4Lesv4x3eiAzYBBA7hScusxOEovC/M861Ur1fiyVMXxnVGyfqmqujpFY9L4bUUBoai1w8KFz1nLqP5UWxlqb6KwNiRQDKPG79V1aV6MXVTATFtp7qfOmVwZKRaWNTfn4O90tj2aZs9vT0cjhEBPRegCz2YxD2NLhPUTB/7bBXtxznirXPD+7YyAxP4JEOg18KfQzn45zU0F8+SkQIDAQAB",
     gateway: "https://openapi.alipay.com/gateway.do",
   });
-  const systemInfo = await alipaySdk.exec("alipay.system.oauth.token", {
-    code: req.body.authCode,
-    grant_type: "authorization_code",
-  });
-  const { avatar, nickName } = await alipaySdk.exec("alipay.user.info.share", {
-    authToken: systemInfo.accessToken,
-  });
+
+  const { authStart, accessToken } = await alipaySdk.exec(
+    "alipay.system.oauth.token",
+    {
+      code: req.body.authCode,
+      grant_type: "authorization_code",
+    }
+  );
+  const { avatar, nickName, openId } = await alipaySdk.exec(
+    "alipay.user.info.share",
+    {
+      authToken: accessToken,
+    }
+  );
+
+  const user = await UserModel.find({ openId });
+  if (user.length !== 0) {
+    await UserModel.updateOne(
+      { openId },
+      { avatar, nickName, lastLoginTime: authStart }
+    );
+  } else {
+    await UserModel.create({
+      openId,
+      avatar,
+      nickName,
+      lastLoginTime: authStart,
+    });
+  }
+
   const token = jwt.sign(
     {
+      openId,
       avatar,
       nickName,
     },
     SECRET,
     {
-      expiresIn: 60 * 60 * 24,
+      expiresIn: 60 * 60 * 24 * 7, // 设置 token 有效期为 7 天（数字单位为秒）
     }
   );
+
   res.json({
     code: 200,
     data: {
