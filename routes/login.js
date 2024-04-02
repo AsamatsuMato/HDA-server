@@ -8,6 +8,7 @@ const UserModel = require("../model/User");
 
 const AlipaySdk = require("alipay-sdk").default;
 
+// 用户授权登录
 router.post("/authorizedAccessToken", async (req, res) => {
   const alipaySdk = new AlipaySdk({
     // 小程序 appId
