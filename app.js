@@ -10,6 +10,7 @@ const indexRouter = require("./routes/index");
 const hospitalRouter = require("./routes/hospital");
 const loginRouter = require("./routes/login");
 const patientRouter = require("./routes/patient");
+const departmentRouter = require("./routes/department");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/hda/home", indexRouter);
 app.use("/hda/hospital", hospitalRouter);
 app.use("/hda/login", loginRouter);
 app.use("/hda/patient", patientRouter);
+app.use("/hda/department", departmentRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
