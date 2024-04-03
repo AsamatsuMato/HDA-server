@@ -6,6 +6,9 @@ const logger = require("morgan");
 // 导入 cors 解决跨域问题
 const cors = require("cors");
 
+// 导入记录日志中间件
+const recordLogMiddleware = require("./middleware/recordLogMiddleware");
+
 const indexRouter = require("./routes/index");
 const hospitalRouter = require("./routes/hospital");
 const loginRouter = require("./routes/login");
@@ -14,6 +17,9 @@ const departmentRouter = require("./routes/department");
 const doctorRouter = require("./routes/doctor");
 
 const app = express();
+
+// 全局挂载记录日志中间件
+app.use(recordLogMiddleware);
 
 app.use(logger("dev"));
 app.use(express.json());

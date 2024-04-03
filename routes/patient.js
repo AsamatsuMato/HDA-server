@@ -76,7 +76,7 @@ router.post("/addPatient", checkToken, async (req, res) => {
 });
 
 // 就诊人解除绑定
-router.get("/deletePatient", async (req, res) => {
+router.get("/deletePatient", checkToken, async (req, res) => {
   const { medicalCardNo } = req.query;
   try {
     await PatientModel.updateOne({ medicalCardNo }, { isDelete: 1 });

@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
+
+const checkToken = require("../middleware/checkTokenMiddleware");
+
 const DepartmentModel = require("../model/Department");
 
-router.get("/getDepartmentList", async (req, res) => {
+router.get("/getDepartmentList", checkToken, async (req, res) => {
+  const { url, ip } = req;
   try {
     const data = await DepartmentModel.find().select({ _id: 0 });
     res.json({

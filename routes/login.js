@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { SECRET } = require("../config/index");
 
 const UserModel = require("../model/User");
+const PatientModel = require("../model/Patient");
 
 const AlipaySdk = require("alipay-sdk").default;
 
@@ -63,15 +64,30 @@ router.post("/authorizedAccessToken", async (req, res) => {
     }
   );
 
-  res.json({
-    code: 200,
-    data: {
-      token,
-      avatar,
-      nickName,
-    },
-    msg: "登录成功",
-  });
+  const patientRes = await PatientModel.find({ openId, isDelete: 0 });
+
+  if (patientRes.length !== 0) {
+    res.json({
+      code: 200,
+      data: {
+        token,
+        avatar,
+        nickName,
+        medicalCardNo: patientRes[0].medicalCardNo,
+      },
+      msg: "登录成功",
+    });
+  } else {
+    res.json({
+      code: 200,
+      data: {
+        token,
+        avatar,
+        nickName,
+      },
+      msg: "登录成功",
+    });
+  }
 });
 
 module.exports = router;
