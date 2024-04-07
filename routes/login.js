@@ -74,6 +74,7 @@ router.post("/authorizedAccessToken", async (req, res) => {
         avatar,
         nickName,
         medicalCardNo: patientRes[0].medicalCardNo,
+        patientName: patientRes[0].name,
       },
       msg: "登录成功",
     });

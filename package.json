@@ -14,9 +14,11 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "mongoose": "^8.2.4",
     "morgan": "~1.9.1",
-    "shortid": "^2.2.16"
+    "shortid": "^2.2.16",
+    "uuid": "^9.0.1"
   }
 }

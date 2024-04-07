@@ -7,6 +7,7 @@ const DoctorSchema = mongoose.Schema({
   position: String,
   docIntro: String,
   department: String,
+  deptCode: String,
   price: Number,
 });
 
