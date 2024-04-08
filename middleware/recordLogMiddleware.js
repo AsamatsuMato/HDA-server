@@ -10,27 +10,33 @@ module.exports = (req, res, next) => {
   function getBody() {
     return new Promise((resolve, reject) => {
       const body = {};
-      req.on("data", (data) => {
-        Object.assign(body, JSON.parse(data));
-        resolve(body);
-      });
+      try {
+        req.on("data", (data) => {
+          Object.assign(body, JSON.parse(data));
+          resolve(body);
+        });
+      } catch (err) {
+        console.log(err);
+      }
     });
   }
 
-  getBody().then((body) => {
-    if (method === "GET") {
-      fs.appendFileSync(
-        path.resolve(__dirname + "/../logs/interview.log"),
-        `${date}\t\t${method}\t\t${statusCode}\t\t${url}\t\t${ip}\t\t${query}\r\n`
-      );
-    } else {
+  if (method === "GET") {
+    fs.appendFileSync(
+      path.resolve(__dirname + "/../logs/interview.log"),
+      `${date}\t\t${method}\t\t${statusCode}\t\t${url}\t\t${ip}\t\t${JSON.stringify(
+        query
+      )}\r\n`
+    );
+  } else {
+    getBody().then((body) => {
       fs.appendFileSync(
         path.resolve(__dirname + "/../logs/interview.log"),
         `${date}\t\t${method}\t\t${statusCode}\t\t${url}\t\t${ip}\t\t${JSON.stringify(
           body
         )}\r\n`
       );
-    }
-  });
+    });
+  }
   next();
 };

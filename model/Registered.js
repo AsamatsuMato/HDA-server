@@ -6,10 +6,12 @@ const RegisteredSchema = mongoose.Schema({
   medicalCardNo: String,
   appointmentTime: String,
   docCode: String,
+  docName: String,
   deptName: String,
   date: String,
-  timeperiod: String,
+  timePeriod: String,
   price: Number,
+  status: Number,
 });
 
 const RegisteredModel = mongoose.model("registereds", RegisteredSchema);

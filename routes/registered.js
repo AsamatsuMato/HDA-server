@@ -7,6 +7,7 @@ const DoctorModel = require("../model/Doctor");
 const DepartmentModel = require("../model/Department");
 const PatientModel = require("../model/Patient");
 const RegisteredModel = require("../model/Registered");
+const RegStatusModel = require("../model/RegStatus");
 const SchedulingModel = require("../model/Scheduling");
 
 const monent = require("moment");
@@ -74,7 +75,7 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
           docCode,
         });
 
-        const { deptCode } = doctorInfo[0];
+        const { deptCode, docName } = doctorInfo[0];
 
         const departmentInfo = await DepartmentModel.find({ deptCode });
         const { deptName } = departmentInfo[0];
@@ -88,10 +89,12 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
             medicalCardNo,
             appointmentTime,
             docCode,
+            docName,
             deptName,
             date,
             timePeriod,
             price,
+            status: 1, // 状态 "1" 为 "预约成功"
           });
 
           await SchedulingModel.updateOne(oldVal, result[0]);
@@ -103,6 +106,19 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
           });
         } catch (err) {
           console.log(err);
+          await RegisteredModel.create({
+            regCode: `REG-${uuid()}`,
+            patientName: patientInfo[0].name,
+            medicalCardNo,
+            appointmentTime,
+            docCode,
+            docName,
+            deptName,
+            date,
+            timePeriod,
+            price,
+            status: 0, // 状态 "0" 为 "预约失败"
+          });
           res.json({
             code: 500,
             data: null,
@@ -110,6 +126,19 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
           });
         }
       } else {
+        await RegisteredModel.create({
+          regCode: `REG-${uuid()}`,
+          patientName: patientInfo[0].name,
+          medicalCardNo,
+          appointmentTime,
+          docCode,
+          docName,
+          deptName,
+          date,
+          timePeriod,
+          price,
+          status: 0, // 状态 "0" 为 "预约失败"
+        });
         res.json({
           code: 202,
           data: null,
@@ -117,6 +146,19 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
         });
       }
     } catch (err) {
+      await RegisteredModel.create({
+        regCode: `REG-${uuid()}`,
+        patientName: patientInfo[0].name,
+        medicalCardNo,
+        appointmentTime,
+        docCode,
+        docName,
+        deptName,
+        date,
+        timePeriod,
+        price,
+        status: 0, // 状态 "0" 为 "预约失败"
+      });
       console.log(err);
       res.json({
         code: 500,
@@ -125,11 +167,65 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err, "排班模块报错");
+    await RegisteredModel.create({
+      regCode: `REG-${uuid()}`,
+      patientName: patientInfo[0].name,
+      medicalCardNo,
+      appointmentTime,
+      docCode,
+      docName,
+      deptName,
+      date,
+      timePeriod,
+      price,
+      status: 0, // 状态 "0" 为 "预约失败"
+    });
+    console.log(err);
     res.json({
       code: 201,
       data: null,
       msg: "号源不足",
+    });
+  }
+});
+
+// 挂号记录查询
+router.get("/getRegisteredRecord", checkToken, async (req, res) => {
+  const { medicalCardNo } = req.query;
+  try {
+    const data = await RegisteredModel.find({
+      medicalCardNo,
+    }).select({ _id: 0, __v: 0 });
+    res.json({
+      code: 200,
+      data,
+      msg: "挂号记录查询成功",
+    });
+  } catch (err) {
+    console.log(err);
+    res.json({
+      code: 500,
+      data: null,
+      msg: "挂号记录查询失败",
+    });
+  }
+});
+
+// 挂号状态列表枚举
+router.get("/getRegStatusList", checkToken, async (req, res) => {
+  try {
+    const data = await RegStatusModel.find().select({ _id: 0 });
+    res.json({
+      code: 200,
+      data,
+      msg: "挂号状态列表枚举查询成功",
+    });
+  } catch (err) {
+    console.log(err);
+    res.json({
+      code: 500,
+      data: null,
+      msg: "挂号状态列表枚举查询失败",
     });
   }
 });

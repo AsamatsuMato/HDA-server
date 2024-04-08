@@ -3,6 +3,8 @@ const router = express.Router();
 
 const checkToken = require("../middleware/checkTokenMiddleware");
 
+const timeContrastor = require("../utils/time-contrastor");
+
 const DoctorModel = require("../model/Doctor");
 const SchedulingModel = require("../model/Scheduling");
 
@@ -23,7 +25,19 @@ router.post("/getDoctorList", checkToken, async (req, res) => {
         value.forEach((valueItem) => {
           if (doctorResItem.docCode === valueItem.docCode) {
             valueItem.timePeriod.forEach((element) => {
-              doctorResItem.remaining += element.remaining;
+              const currentTimeStamp = new Date().getTime();
+              if (new Date().getDate() === new Date(date).getDate()) {
+                const { startDate, endDate } = timeContrastor(element.time);
+                if (currentTimeStamp < startDate.getTime()) {
+                  doctorResItem.remaining += element.remaining;
+                } else if (currentTimeStamp > endDate.getTime()) {
+                  return;
+                } else {
+                  doctorResItem.remaining += element.remaining;
+                }
+              } else {
+                doctorResItem.remaining += element.remaining;
+              }
             });
           }
         });
@@ -85,9 +99,25 @@ router.post("/getScheduling", checkToken, async (req, res) => {
       const { timePeriod } = schedulingRes[0].value.find((item) => {
         return item.docCode === docCode;
       });
+      let data = [];
+      timePeriod.forEach((item) => {
+        const currentTimeStamp = new Date().getTime();
+        if (new Date().getDate() === new Date(date).getDate()) {
+          const { startDate, endDate } = timeContrastor(item.time);
+          if (currentTimeStamp < startDate.getTime()) {
+            data.push(item);
+          } else if (currentTimeStamp > endDate.getTime()) {
+            return;
+          } else {
+            data.push(item);
+          }
+        } else {
+          data = [...timePeriod];
+        }
+      });
       res.json({
         code: 200,
-        data: timePeriod,
+        data,
         msg: "获取排班信息成功",
       });
     } else {
