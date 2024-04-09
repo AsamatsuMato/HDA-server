@@ -49,6 +49,7 @@ router.post("/authorizedAccessToken", async (req, res) => {
       avatar,
       nickName,
       lastLoginTime: authStart,
+      balance: 0,
     });
   }
 

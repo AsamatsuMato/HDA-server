@@ -83,7 +83,7 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
         const appointmentTime = monent().format("YYYY-MM-DD HH:mm:ss");
 
         try {
-          await RegisteredModel.create({
+          const data = await RegisteredModel.create({
             regCode: `REG-${uuid()}`,
             patientName: patientInfo[0].name,
             medicalCardNo,
@@ -101,7 +101,7 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
 
           res.json({
             code: 200,
-            data: null,
+            data,
             msg: "挂号成功",
           });
         } catch (err) {
@@ -190,12 +190,31 @@ router.post("/confirmRegistered", checkToken, async (req, res) => {
 });
 
 // 挂号记录查询
-router.get("/getRegisteredRecord", checkToken, async (req, res) => {
-  const { medicalCardNo } = req.query;
+router.post("/getRegisteredRecord", checkToken, async (req, res) => {
+  const { medicalCardNo, regCode, status } = req.body;
   try {
-    const data = await RegisteredModel.find({
-      medicalCardNo,
-    }).select({ _id: 0, __v: 0 });
+    let data = [];
+    if (regCode) {
+      // 有 regCode, 为查询某条挂号记录, 用于挂号详情页查询
+      const result = await RegisteredModel.find({
+        medicalCardNo,
+        regCode,
+      }).select({ _id: 0, __v: 0 });
+      data = result[0];
+    } else if (status) {
+      // 只有 status, 用于门诊缴费查询 "预约成功" 状态的挂号记录列表
+      data = await RegisteredModel.find({ medicalCardNo, status })
+        .select({ __v: 0 })
+        .sort({ _id: -1 });
+    } else {
+      // 没有 regCode, 为查询列表的全部数据, 用于挂号记录查询页查询整个列表
+      data = await RegisteredModel.find({
+        medicalCardNo,
+      })
+        .select({ _id: 0, __v: 0 })
+        .sort({ _id: -1 });
+    }
+
     res.json({
       code: 200,
       data,
@@ -226,6 +245,26 @@ router.get("/getRegStatusList", checkToken, async (req, res) => {
       code: 500,
       data: null,
       msg: "挂号状态列表枚举查询失败",
+    });
+  }
+});
+
+// 取消预约
+router.get("/cancelAppointment", async (req, res) => {
+  const { regCode } = req.query;
+  try {
+    await RegisteredModel.updateOne({ regCode }, { status: -1 });
+    res.json({
+      code: 200,
+      data: null,
+      msg: "取消预约成功",
+    });
+  } catch (err) {
+    console.log(err);
+    res.json({
+      code: 500,
+      data: null,
+      msg: "取消预约失败",
     });
   }
 });

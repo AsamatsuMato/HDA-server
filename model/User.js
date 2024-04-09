@@ -5,8 +5,8 @@ const UserSchema = mongoose.Schema({
   nickName: String,
   avatar: String,
   lastLoginTime: String,
-  medicalCardNo: String,
-  idCard: String,
+  balance: Number,
+  paymentPwd: String,
 });
 
 const UserModel = mongoose.model("users", UserSchema);
