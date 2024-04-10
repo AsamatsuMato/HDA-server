@@ -5,8 +5,8 @@ const OrderSchema = mongoose.Schema({
   nickName: String,
   orderCode: String,
   orderTime: String,
-  rechargeAmount: Number,
-  consumptionType: Number, // -1 为支出, 1 为充值
+  amount: Number,
+  consumptionType: String, // 消费类型
   isDelete: Number,
 });
 

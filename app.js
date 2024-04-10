@@ -2,12 +2,13 @@ const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+// const logger = require("morgan");
 // 导入 cors 解决跨域问题
 const cors = require("cors");
 
 // 导入记录日志中间件
-const recordLogMiddleware = require("./middleware/recordLogMiddleware");
+// const recordLogMiddleware = require("./middleware/recordLogMiddleware"); // 会报错, 已弃用
+const log4js = require("./utils/log4js.js");
 
 const indexRouter = require("./routes/index");
 const hospitalRouter = require("./routes/hospital");
@@ -22,14 +23,16 @@ const userRouter = require("./routes/user");
 const app = express();
 
 // 全局挂载记录日志中间件
-app.use(recordLogMiddleware);
+// app.use(recordLogMiddleware); // 会报错, 已弃用
 
-app.use(logger("dev"));
+// app.use(logger("dev")); // 不需要控制台输出请求日志, 影响性能
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
+
+app.use(log4js);
 
 app.use("/hda/home", indexRouter);
 app.use("/hda/hospital", hospitalRouter);
