@@ -19,6 +19,7 @@ const doctorRouter = require("./routes/doctor");
 const registeredRouter = require("./routes/registered");
 const orderRouter = require("./routes/order");
 const userRouter = require("./routes/user");
+const packageRouter = require("./routes/package");
 
 const app = express();
 
@@ -43,9 +44,10 @@ app.use("/hda/doctor", doctorRouter);
 app.use("/hda/registered", registeredRouter);
 app.use("/hda/order", orderRouter);
 app.use("/hda/user", userRouter);
+app.use("/hda/package", packageRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+/* app.use(function (req, res, next) {
   next(createError(404));
 });
 
@@ -58,6 +60,6 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render("error");
-});
+}); */
 
 module.exports = app;
