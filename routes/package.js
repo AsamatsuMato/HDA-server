@@ -71,6 +71,7 @@ router.post("/bookPhysicalExamination", checkToken, async (req, res) => {
   const {
     date,
     packageCode,
+    packageName,
     price,
     name,
     idCard,
@@ -139,12 +140,14 @@ router.post("/bookPhysicalExamination", checkToken, async (req, res) => {
   }
 
   try {
+    const phyExaCode = `PHY${uuid()}`;
     await PhyExaModel.create({
       openId,
       date,
       price,
       packageCode,
-      phyExaCode: `PHY${uuid()}`,
+      packageName,
+      phyExaCode,
       name,
       idCard,
       birthday,
@@ -154,7 +157,7 @@ router.post("/bookPhysicalExamination", checkToken, async (req, res) => {
       birthPlace,
       pastMedicalHistoryContent,
       allergicHistoryContent,
-      appointmentTime: moment().format("YYYY-MM-DD"),
+      appointmentTime: moment().format("YYYY-MM-DD HH:mm:ss"),
       status: 1,
     });
 
@@ -187,7 +190,7 @@ router.post("/bookPhysicalExamination", checkToken, async (req, res) => {
 
     res.json({
       code: 200,
-      data: null,
+      data: phyExaCode,
       msg: "预约成功",
     });
   } catch (err) {
@@ -195,6 +198,74 @@ router.post("/bookPhysicalExamination", checkToken, async (req, res) => {
       code: 500,
       data: null,
       msg: "预约失败",
+    });
+    console.log(err);
+  }
+});
+
+// 查询体检已预约列表
+router.get("/getReservedList", checkToken, async (req, res) => {
+  const { openId } = req.userInfo;
+  const { status } = req.query;
+  try {
+    let data = [];
+    if (status) {
+      const reservedList = await PhyExaModel.find({ openId, status }).sort({
+        _id: -1,
+      });
+      data = reservedList;
+    } else {
+      const packageList = await PackageModel.find();
+      const reservedList = await PhyExaModel.find({ openId }).sort({ _id: -1 });
+      reservedList.forEach((item) => {
+        packageList.forEach((deepItem) => {
+          if (item.packageCode === deepItem.packageCode) {
+            data.push({
+              phyExaCode: item.phyExaCode,
+              packageName: deepItem.packageName,
+              name: item.name,
+              date: item.date,
+              status: item.status,
+              reportUrl: "/report.pdf",
+            });
+          }
+        });
+      });
+    }
+    res.json({
+      code: 200,
+      data,
+      msg: "查询成功",
+    });
+  } catch (err) {
+    res.json({
+      code: 500,
+      data: null,
+      msg: "查询失败",
+    });
+    console.log(err);
+  }
+});
+
+// 查询某条已预约记录的详情
+router.get("/getReservedDetails", checkToken, async (req, res) => {
+  const { phyExaCode } = req.query;
+  try {
+    const reservedList = await PhyExaModel.find({ phyExaCode }).select({
+      _id: 0,
+      __v: 0,
+      openId: 0,
+    });
+    res.json({
+      code: 200,
+      data: reservedList[0],
+      msg: "查询成功",
+    });
+  } catch (err) {
+    res.json({
+      code: 500,
+      data: null,
+      msg: "查询失败",
     });
     console.log(err);
   }

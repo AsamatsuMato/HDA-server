@@ -4,6 +4,7 @@ const PhyExaSchema = mongoose.Schema({
   openId: String,
   date: String,
   packageCode: String,
+  packageName: String,
   phyExaCode: String,
   price: Number,
   name: String,
