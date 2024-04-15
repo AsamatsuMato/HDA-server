@@ -250,9 +250,31 @@ router.get("/getRegStatusList", checkToken, async (req, res) => {
 });
 
 // 取消预约
-router.get("/cancelAppointment", async (req, res) => {
-  const { regCode } = req.query;
+router.post("/cancelAppointment", async (req, res) => {
+  const { regCode, docCode, date, timePeriod } = req.body;
   try {
+    try {
+      const result = await SchedulingModel.find({ date });
+      const oldVal = lodash.cloneDeep(result[0]);
+      result[0].value.forEach((item) => {
+        if (docCode === item.docCode) {
+          item.timePeriod.forEach((deepItem) => {
+            if (timePeriod === deepItem.time && deepItem.remaining !== 0) {
+              deepItem.remaining += 1;
+            }
+          });
+        }
+      });
+      await SchedulingModel.updateOne(oldVal, result[0]);
+    } catch (err) {
+      res.json({
+        code: 201,
+        data: null,
+        msg: "已过期, 取消预约失败",
+      });
+      console.log(err);
+      return;
+    }
     await RegisteredModel.updateOne({ regCode }, { status: -1 });
     res.json({
       code: 200,

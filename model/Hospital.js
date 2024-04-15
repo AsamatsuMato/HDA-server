@@ -6,6 +6,8 @@ const HospitalSchema = mongoose.Schema({
   phone: String,
   location: String,
   introduce: String,
+  latitude: Number,
+  longitude: Number,
 });
 
 const HospitalModel = mongoose.model("hospitals", HospitalSchema);
