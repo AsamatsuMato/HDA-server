@@ -249,7 +249,7 @@ router.get("/getRegStatusList", checkToken, async (req, res) => {
   }
 });
 
-// 取消预约
+// 取消挂号预约
 router.post("/cancelAppointment", async (req, res) => {
   const { regCode, docCode, date, timePeriod } = req.body;
   try {

@@ -271,4 +271,42 @@ router.get("/getReservedDetails", checkToken, async (req, res) => {
   }
 });
 
+// 取消体检预约
+router.post("/cancelPhyExaAppointment", async (req, res) => {
+  const { packageCode, phyExaCode, date } = req.body;
+  try {
+    try {
+      const schedulingList = await PhyExaSchedulingModel.find({ date });
+      const oldVal = lodash.cloneDeep(schedulingList[0]);
+      schedulingList[0].value.forEach((item) => {
+        if (item.packageCode === packageCode) {
+          item.remaining += 1;
+        }
+      });
+      await PhyExaSchedulingModel.updateOne(oldVal, schedulingList[0]);
+    } catch (err) {
+      res.json({
+        code: 201,
+        data: null,
+        msg: "已过期, 取消预约失败",
+      });
+      console.log(err);
+      return;
+    }
+    await PhyExaModel.updateOne({ phyExaCode }, { status: -1 });
+    res.json({
+      code: 200,
+      data: null,
+      msg: "取消预约成功",
+    });
+  } catch (err) {
+    console.log(err);
+    res.json({
+      code: 500,
+      data: null,
+      msg: "取消预约失败",
+    });
+  }
+});
+
 module.exports = router;
