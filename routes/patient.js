@@ -14,7 +14,7 @@ router.get("/getPatientInfo", checkToken, async (req, res) => {
     const data = await PatientModel.find({ openId, isDelete: 0 });
     if (data.length === 0) {
       res.json({
-        code: 200,
+        code: 201,
         data: null,
         msg: "暂未添加就诊人",
       });

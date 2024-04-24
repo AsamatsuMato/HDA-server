@@ -19,12 +19,32 @@ router.get("/getUserInfo", checkToken, async (req, res) => {
       msg: "查询用户个人信息成功",
     });
   } catch (err) {
-    console.log(err);
     res.json({
       code: 500,
       data: null,
       msg: "查询用户个人信息失败",
     });
+    console.log(err);
+  }
+});
+
+router.get("/settingPaymentPwd", checkToken, async (req, res) => {
+  try {
+    const { pwd } = req.query;
+    const { openId } = req.userInfo;
+    await UserModel.updateOne({ openId }, { paymentPwd: pwd });
+    res.json({
+      code: 200,
+      data: null,
+      msg: "支付密码设置成功",
+    });
+  } catch (err) {
+    res.json({
+      code: 500,
+      data: null,
+      msg: "支付密码设置失败",
+    });
+    console.log(err);
   }
 });
 

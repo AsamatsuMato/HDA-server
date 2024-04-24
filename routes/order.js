@@ -11,6 +11,8 @@ const PhyExaModel = require("../model/PhyExa");
 const monent = require("moment");
 const uuid = require("../utils/uuid-generator");
 
+const decrypt = require("../utils/cryptoEncipher");
+
 // 透析预缴
 router.post("/dialysisPrepayment", checkToken, async (req, res) => {
   const { openId, nickName } = req.userInfo;
@@ -18,7 +20,7 @@ router.post("/dialysisPrepayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== userList[0].paymentPwd) {
+    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,
@@ -82,7 +84,7 @@ router.post("/registeredPayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== userList[0].paymentPwd) {
+    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,
@@ -144,7 +146,7 @@ router.post("/phyExaPayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== userList[0].paymentPwd) {
+    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,
