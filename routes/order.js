@@ -20,7 +20,7 @@ router.post("/dialysisPrepayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
+    if (decrypt(paymentPwd) !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,
@@ -84,7 +84,7 @@ router.post("/registeredPayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
+    if (decrypt(paymentPwd) !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,
@@ -146,7 +146,7 @@ router.post("/phyExaPayment", checkToken, async (req, res) => {
   let balance = 0;
   try {
     const userList = await UserModel.find({ openId });
-    if (paymentPwd !== decrypt(userList[0].paymentPwd)) {
+    if (decrypt(paymentPwd) !== decrypt(userList[0].paymentPwd)) {
       res.json({
         code: 201,
         data: null,

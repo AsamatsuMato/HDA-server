@@ -28,11 +28,11 @@ router.get("/getUserInfo", checkToken, async (req, res) => {
   }
 });
 
-router.get("/settingPaymentPwd", checkToken, async (req, res) => {
+router.post("/settingPaymentPwd", checkToken, async (req, res) => {
   try {
-    const { pwd } = req.query;
+    const { paymentPwd } = req.body;
     const { openId } = req.userInfo;
-    await UserModel.updateOne({ openId }, { paymentPwd: pwd });
+    await UserModel.updateOne({ openId }, { paymentPwd });
     res.json({
       code: 200,
       data: null,
